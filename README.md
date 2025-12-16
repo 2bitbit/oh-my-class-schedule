@@ -29,6 +29,7 @@
   <img src="./public/动画_1.gif" width=45%>
   <img src="./public/动画_2.gif" width=45%>
 </div>
+（此处有两个 demo GIF，体积较大，可能需要加载一些时间。）
 
 ## ✨ 眼前一亮的细节
 
