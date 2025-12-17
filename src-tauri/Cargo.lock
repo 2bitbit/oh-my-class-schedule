@@ -2402,7 +2402,7 @@ dependencies = [
 
 [[package]]
 name = "oh-my-class-schedule"
-version = "1.0.0"
+version = "0.0.3"
 dependencies = [
  "serde",
  "serde_json",

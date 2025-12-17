@@ -293,7 +293,17 @@ async function checkForUpdates(silent = false) {
   } catch (error) {
     console.error(error);
     if (!silent) {
-      await ask(`检查更新失败: ${error}`, { title: '错误', kind: 'error' });
+       // Catch specific error for missing release file (common on first install)
+       const errStr = String(error);
+       if (errStr.includes("Could not fetch a valid release JSON") || errStr.includes("404")) {
+         await ask('暂未找到发布信息 (可能是因为这是第一个版本，或者网络无法访问 GitHub)。', { 
+           title: '检查更新', 
+           kind: 'info',
+           okLabel: '确定' 
+         });
+       } else {
+         await ask(`检查更新失败: ${error}`, { title: '错误', kind: 'error' });
+       }
     }
   } finally {
     isCheckingUpdate.value = false;
