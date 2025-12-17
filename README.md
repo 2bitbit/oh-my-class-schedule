@@ -3,12 +3,12 @@
   ✨🌈💫 **跨 平 台 大 学 课 表** 💫🌈✨<br>
   <sub>🪟 Windows · 🍎 macOS · 🐧 Linux · 🤖 Android</sub>
   <br><br>
-    <a href="https://github.com/2bitbit/oh-my-class-schedule/stargazers">
-    <img src="https://img.shields.io/github/stars/2bitbit/oh-my-class-schedule?style=flat-square&color=fbbf24" alt="Stars" />
-  </a>
-  <a href="https://github.com/2bitbit/oh-my-class-schedule/issues">
-    <img src="https://img.shields.io/github/issues/2bitbit/oh-my-class-schedule?style=flat-square&color=ef4444" alt="Issues" />
-  </a>
+    <a href="https://github.com/2bitbit/oh-my-class-schedule/stargazers" style="text-decoration: none;">
+      <img src="https://img.shields.io/github/stars/2bitbit/oh-my-class-schedule?style=flat-square&color=fbbf24" alt="Stars" />
+    </a>
+    <a href="https://github.com/2bitbit/oh-my-class-schedule/issues" style="text-decoration: none;">
+      <img src="https://img.shields.io/github/issues/2bitbit/oh-my-class-schedule?style=flat-square&color=ef4444" alt="Issues" />
+    </a>
   <img src="https://img.shields.io/badge/Built%20with-Tauri%20v2-blue?style=flat-square&logo=tauri" alt="Tauri" />
   <img src="https://img.shields.io/badge/License-MIT-green?style=flat-square" alt="License" />
 </div>

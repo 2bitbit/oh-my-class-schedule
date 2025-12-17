@@ -98,12 +98,14 @@ jobs:
           ANDROID_KEYSTORE_PATH: ${{ runner.temp }}/upload-keystore.jks
         run: |
           # Build APKs
-          npx tauri android build --apk true
+          npx tauri android build --apk true --target aarch64
 
       - name: Upload Android Assets
         uses: softprops/action-gh-release@v2
         if: startsWith(github.ref, 'refs/tags/')
         with:
+          draft: true # Ensure it is a draft so you can review before publishing
           files: |
-            src-tauri/gen/android/app/build/outputs/apk/universal/release/app-universal-release.apk
             src-tauri/gen/android/app/build/outputs/apk/release/app-arm64-v8a-release.apk
+            src-tauri/gen/android/app/build/outputs/apk/release/app-armeabi-v7a-release.apk
+            src-tauri/gen/android/app/build/outputs/apk/release/app-universal-release.apk
