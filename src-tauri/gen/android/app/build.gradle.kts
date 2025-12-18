@@ -25,16 +25,6 @@ android {
         versionName = tauriProperties.getProperty("tauri.android.versionName", "1.0")
     }
 
-    // Enable APK splits to generate smaller, ABI-specific APKs
-    splits {
-        abi {
-            isEnable = true
-            reset()
-            include("arm64-v8a")
-            isUniversalApk = true // Also generate a universal APK if needed, or false to save space
-        }
-    }
-
     // ========================
         // === 智能签名配置 (兼容本地文件 和 GitHub Actions) ===
     val keystorePropertiesFile = rootProject.file("key.properties")

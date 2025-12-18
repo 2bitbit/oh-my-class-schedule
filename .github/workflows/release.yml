@@ -29,6 +29,11 @@ jobs:
         with:
           targets: ${{ matrix.platform == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
 
+      - name: Rust Cache
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: "./src-tauri -> target"
+
       - name: Install Linux dependencies
         if: matrix.platform == 'ubuntu-24.04'
         run: |
@@ -54,6 +59,14 @@ jobs:
   release-android:
     permissions:
       contents: write
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - label: "aarch64"
+            command: "npx tauri android build --apk true --target aarch64"
+          - label: "universal"
+            command: "npx tauri android build --apk true"
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -68,6 +81,16 @@ jobs:
         uses: dtolnay/rust-toolchain@stable
         with:
           targets: aarch64-linux-android,armv7-linux-androideabi,i686-linux-android,x86_64-linux-android
+
+      - name: Rust Cache
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: "./src-tauri -> target"
+
+      - name: Gradle Cache
+        uses: gradle/actions/setup-gradle@v3
+        with:
+          cache-read-only: false
 
       - name: Setup Java
         uses: actions/setup-java@v4
@@ -90,20 +113,21 @@ jobs:
         env:
           ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
 
-      - name: Build Android APK (Universal & Splits)
+      - name: Build Android APK (${{ matrix.label }})
         env:
           ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
           ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
           ANDROID_STORE_PASSWORD: ${{ secrets.ANDROID_STORE_PASSWORD }}
           ANDROID_KEYSTORE_PATH: ${{ runner.temp }}/upload-keystore.jks
+        run: ${{ matrix.command }}
+
+      - name: Rename APK
         run: |
-          # Build APKs
-          npx tauri android build --apk true --target aarch64
+          find src-tauri/gen/android/app/build/outputs/apk -name "*.apk" -type f -exec mv {} oh-my-class-schedule-android-${{ matrix.label }}.apk \;
 
       - name: Upload Android Assets
         uses: softprops/action-gh-release@v2
         if: startsWith(github.ref, 'refs/tags/')
         with:
           draft: true # Ensure it is a draft so you can review before publishing
-          files: |
-            src-tauri/gen/android/app/build/outputs/apk/**/release/*.apk
+          files: oh-my-class-schedule-android-${{ matrix.label }}.apk

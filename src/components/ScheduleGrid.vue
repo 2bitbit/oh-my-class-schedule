@@ -20,7 +20,7 @@ const dayMap: Record<string, number> = {
 };
 // Map simplified header back to index for date calc
 const headerIndexMap: Record<string, number> = {
-    '一': 0, '二': 1, '三': 2, '四': 3, '五': 4, '六': 5, '日': 6
+  '一': 0, '二': 1, '三': 2, '四': 3, '五': 4, '六': 5, '日': 6
 };
 
 // 12 slots for the day
@@ -28,7 +28,7 @@ const headerIndexMap: Record<string, number> = {
 const timeSlots = computed(() => {
   const maxSlot = parsedCourses.value.reduce((max, c) => {
     // gridRowEnd is (endSlot + 2), so endSlot is (gridRowEnd - 2)
-    const endSlot = c.gridRowEnd - 2; 
+    const endSlot = c.gridRowEnd - 2;
     return Math.max(max, endSlot);
   }, 10); // Minimum 10 slots
 
@@ -54,7 +54,7 @@ const parsedCourses = computed<GridCourse[]>(() => {
   }).map(c => {
     const dayStr = c.connection.split(' ').find(s => s.startsWith('星期') || dayMap[s] !== undefined);
     const dayIndex = dayStr ? dayMap[dayStr] : -1;
-    
+
     const nums = c.time.match(/\d+/g);
     let start = 1;
     let end = 1;
@@ -62,7 +62,7 @@ const parsedCourses = computed<GridCourse[]>(() => {
       start = parseInt(nums[0]);
       end = parseInt(nums[1]);
     }
-    
+
     return {
       ...c,
       dayIndex,
@@ -75,67 +75,67 @@ const parsedCourses = computed<GridCourse[]>(() => {
 
 // Calculate if we need to show Saturday and Sunday
 const showWeekend = computed(() => {
-    // Check if any visible course is on Sat(5) or Sun(6)
-    return parsedCourses.value.some(c => c.dayIndex === 5 || c.dayIndex === 6);
+  // Check if any visible course is on Sat(5) or Sun(6)
+  return parsedCourses.value.some(c => c.dayIndex === 5 || c.dayIndex === 6);
 });
 
 const visibleDays = computed(() => {
-    if (showWeekend.value) {
-        return days;
-    } else {
-        return days.slice(0, 5); // Only Mon-Fri
-    }
+  if (showWeekend.value) {
+    return days;
+  } else {
+    return days.slice(0, 5); // Only Mon-Fri
+  }
 });
 
 // Calculate Today's Index (0-6, Mon-Sun)
 const todayIndex = computed(() => {
-    const day = new Date().getDay(); // 0 is Sunday
-    return (day + 6) % 7; // Convert to 0=Mon, 6=Sun
+  const day = new Date().getDay(); // 0 is Sunday
+  return (day + 6) % 7; // Convert to 0=Mon, 6=Sun
 });
 
 // Calculate the REAL current week number based on start date
 const realCurrentWeek = computed(() => {
-    if (!props.startDate) return -1;
-    return getWeekNumber(new Date(), new Date(props.startDate));
+  if (!props.startDate) return -1;
+  return getWeekNumber(new Date(), new Date(props.startDate));
 });
 
 const gridStyle = computed(() => {
-    // Uses 8 columns always (Time + 7 Days).
-    // If weekend hidden, last 2 columns animate to 0fr.
-    // We use 0.0001fr to allow transition interpolation (0fr sometimes doesn't animate in some browsers).
-    const weekendWidth = showWeekend.value ? '1fr' : '0.0001fr';
-    
-    return {
-        gridTemplateColumns: `28px repeat(5, minmax(0, 1fr)) repeat(2, minmax(0, ${weekendWidth}))`
-    };
+  // Uses 8 columns always (Time + 7 Days).
+  // If weekend hidden, last 2 columns animate to 0fr.
+  // We use 0.0001fr to allow transition interpolation (0fr sometimes doesn't animate in some browsers).
+  const weekendWidth = showWeekend.value ? '1fr' : '0.0001fr';
+
+  return {
+    gridTemplateColumns: `28px repeat(5, minmax(0, 1fr)) repeat(2, minmax(0, ${weekendWidth}))`
+  };
 });
 
 function getDateString(dayName: string): string {
-    if (!props.startDate || !props.currentWeek) return '';
-    
-    const start = new Date(props.startDate);
-    const dayIndex = headerIndexMap[dayName];
-    // Calculate offset: (Week - 1) * 7 + DayIndex
-    const offset = (props.currentWeek - 1) * 7 + dayIndex;
-    
-    const targetDate = new Date(start);
-    targetDate.setDate(start.getDate() + offset);
-    
-    // Format: MM.DD
-    const m = (targetDate.getMonth() + 1).toString().padStart(2, '0');
-    const d = targetDate.getDate().toString().padStart(2, '0');
-    return `${m}.${d}`;
+  if (!props.startDate || !props.currentWeek) return '';
+
+  const start = new Date(props.startDate);
+  const dayIndex = headerIndexMap[dayName];
+  // Calculate offset: (Week - 1) * 7 + DayIndex
+  const offset = (props.currentWeek - 1) * 7 + dayIndex;
+
+  const targetDate = new Date(start);
+  targetDate.setDate(start.getDate() + offset);
+
+  // Format: MM.DD
+  const m = (targetDate.getMonth() + 1).toString().padStart(2, '0');
+  const d = targetDate.getDate().toString().padStart(2, '0');
+  return `${m}.${d}`;
 }
 
 function isToday(dayName: string): boolean {
-    // 1. Check if the viewed week is the actual current week
-    if (props.currentWeek && realCurrentWeek.value !== -1 && props.currentWeek !== realCurrentWeek.value) {
-        return false;
-    }
+  // 1. Check if the viewed week is the actual current week
+  if (props.currentWeek && realCurrentWeek.value !== -1 && props.currentWeek !== realCurrentWeek.value) {
+    return false;
+  }
 
-    // 2. Check if the day matches today
-    const dayIndex = headerIndexMap[dayName];
-    return dayIndex === todayIndex.value;
+  // 2. Check if the day matches today
+  const dayIndex = headerIndexMap[dayName];
+  return dayIndex === todayIndex.value;
 }
 
 </script>
@@ -144,13 +144,9 @@ function isToday(dayName: string): boolean {
   <div class="schedule-container">
     <div class="schedule-grid" :style="gridStyle">
       <!-- Header Row -->
-      <div class="header-cell time-header"></div>
-      <div 
-        v-for="(day) in visibleDays" 
-        :key="day" 
-        class="header-cell day-header"
-        :class="{ 'is-today-header': isToday(day) }"
-      >
+      <div class="header-cell time-header" style="visibility: hidden;"></div>
+      <div v-for="(day) in visibleDays" :key="day" class="header-cell day-header"
+        :class="{ 'is-today-header': isToday(day) }">
         <span class="day-name">{{ day }}</span>
         <span class="day-date">{{ getDateString(day) }}</span>
       </div>
@@ -159,18 +155,13 @@ function isToday(dayName: string): boolean {
       <div v-for="slot in timeSlots" :key="`slot-${slot}`" class="time-cell" :style="{ gridRow: slot + 1 }">
         {{ slot }}
       </div>
-      
+
       <!-- Grid Lines/Background for reference -->
       <!-- We use full length for index to match column positions -->
       <!-- WARN: For columns, we don't have 'day' string easily mapped if we just loop number.
            Better to loop visibleDays again to act as columns. -->
-      <div 
-        v-for="(day, i) in visibleDays" 
-        :key="`bg-day-${day}`" 
-        class="grid-column-bg" 
-        :class="{ 'is-today-column': isToday(day) }"
-        :style="{ gridColumn: i + 2, gridRow: '2 / -1' }"
-      ></div>
+      <div v-for="(day, i) in visibleDays" :key="`bg-day-${day}`" class="grid-column-bg"
+        :class="{ 'is-today-column': isToday(day) }" :style="{ gridColumn: i + 2, gridRow: '2 / -1' }"></div>
 
       <!-- Visual Separators -->
       <!-- Morning/Afternoon Divider (After 4th slot) -->
@@ -179,16 +170,13 @@ function isToday(dayName: string): boolean {
       </div>
       <!-- Afternoon/Evening Divider (After 8th slot) -->
       <div class="time-divider" style="grid-row: 10; grid-column: 1 / -1; margin-top: -2px;">
-         <div class="divider-line"></div>
+        <div class="divider-line"></div>
       </div>
 
       <!-- Courses -->
       <TransitionGroup name="course" tag="div" style="display: contents">
-        <div 
-          v-for="(course) in parsedCourses" 
-          :key="`${course.name}-${course.dayIndex}-${course.time}`"
-          class="course-wrapper"
-          :style="{
+        <div v-for="(course) in parsedCourses" :key="`${course.name}-${course.dayIndex}-${course.time}`"
+          class="course-wrapper" :style="{
             gridColumn: course.gridColumn,
             gridRowStart: course.gridRowStart,
             gridRowEnd: course.gridRowEnd,
@@ -201,8 +189,7 @@ function isToday(dayName: string): boolean {
             // course-wrapper has overflow:hidden.
             // So just let standard Vue transition handle removal.
             // display: 'block' is fine.
-          }"
-        >
+          }">
           <CourseCard :course="course" :theme="props.theme" />
         </div>
       </TransitionGroup>
@@ -215,8 +202,10 @@ function isToday(dayName: string): boolean {
 .schedule-container {
   width: 100%;
   height: 100%;
-  overflow: hidden; /* contain grid */
-  padding: 4px; /* Minimal padding */
+  overflow: hidden;
+  /* contain grid */
+  padding: 4px;
+  /* Minimal padding */
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
@@ -228,30 +217,34 @@ function isToday(dayName: string): boolean {
   /* Header row + data rows. Use 1fr to strictly fit container height */
   grid-template-rows: 30px repeat(v-bind('timeSlots.length'), minmax(0, 1fr));
   gap: 2px;
-  flex-grow: 1; 
-  height: 100%; /* Force fill */
+  flex-grow: 1;
+  height: 100%;
+  /* Force fill */
   min-width: 0;
   position: relative;
-  transition: all 0.3s ease; /* Smooth resize */
+  transition: all 0.3s ease;
+  /* Smooth resize */
 }
 
 /* Mobile Optimizations - remove fallback min-width */
 @media (max-width: 768px) {
-    .schedule-grid {
-        min-width: 0; 
-    }
+  .schedule-grid {
+    min-width: 0;
+  }
 }
 
 .header-cell {
-  background: var(--glass-bg); /* Use theme variable */
-  backdrop-filter: var(--card-backdrop); /* Use theme variable */
+  background: var(--glass-bg);
+  /* Use theme variable */
+  backdrop-filter: var(--card-backdrop);
+  /* Use theme variable */
   border-radius: 4px;
   display: flex;
   align-items: center;
   justify-content: center;
   font-weight: 600;
   color: var(--text-main);
-  box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
   /* position: sticky not needed if container doesn't scroll */
   z-index: 20;
   font-size: 0.8em;
@@ -259,21 +252,23 @@ function isToday(dayName: string): boolean {
 
 .day-header {
   font-size: 0.8em;
-  flex-direction: column; /* Stack name and date */
+  flex-direction: column;
+  /* Stack name and date */
   gap: 1px;
   line-height: 1;
   padding: 2px 0;
 }
 
 .day-name {
-    font-weight: 700;
+  font-weight: 700;
 }
 
 .day-date {
-    font-size: 0.75em;
-    opacity: 0.6;
-    font-weight: 400;
-    font-family: 'Consolas', monospace; /* Monospace for alignment */
+  font-size: 0.75em;
+  opacity: 0.6;
+  font-weight: 400;
+  font-family: 'Consolas', monospace;
+  /* Monospace for alignment */
 }
 
 .time-cell {
@@ -294,7 +289,7 @@ function isToday(dayName: string): boolean {
    We want it darker. */
 .time-cell {
   /* Dynamic opacity boost for light themes if needed, or just remove opacity */
-  opacity: 0.8; 
+  opacity: 0.8;
 }
 
 .grid-column-bg {
@@ -307,17 +302,19 @@ function isToday(dayName: string): boolean {
 .is-today-column {
   background: linear-gradient(to bottom, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.05));
   border: 1px solid var(--glass-border);
-  box-shadow: inset 0 0 20px rgba(255, 255, 255, 0.05); /* Subtle glow */
+  box-shadow: inset 0 0 20px rgba(255, 255, 255, 0.05);
+  /* Subtle glow */
 }
 
 .is-today-header {
   background: var(--primary-color) !important;
   color: #fff !important;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
 }
+
 .is-today-header .day-date {
-    opacity: 0.9;
-    color: rgba(255,255,255,0.9);
+  opacity: 0.9;
+  color: rgba(255, 255, 255, 0.9);
 }
 
 .time-divider {
@@ -334,7 +331,7 @@ function isToday(dayName: string): boolean {
   height: 2px;
   background: linear-gradient(90deg, transparent 0%, var(--card-border) 10%, var(--card-border) 90%, transparent 100%);
   opacity: 0.8;
-  box-shadow: 0 0 5px rgba(255,255,255, 0.2);
+  box-shadow: 0 0 5px rgba(255, 255, 255, 0.2);
 }
 
 
@@ -349,7 +346,8 @@ function isToday(dayName: string): boolean {
 .course-leave-to {
   opacity: 0;
   transform: scale(0.85) translateY(10px);
-  filter: blur(4px); /* Glassy fade effect */
+  filter: blur(4px);
+  /* Glassy fade effect */
 }
 
 /* Ensure leaving items are taken out of flow (optional if grid position is static)
@@ -361,22 +359,26 @@ function isToday(dayName: string): boolean {
 .course-leave-active {
   /* Using position: absolute creates sizing issues in Grid. 
      Just letting them overlap in the same grid cell works fine for cross-fade. */
-  z-index: 1; /* Lower than entering items */
+  z-index: 1;
+  /* Lower than entering items */
   /* Remove width/height 100% as that referred to container, causing explosion */
-  pointer-events: none; /* Don't block clicks while fading */
+  pointer-events: none;
+  /* Don't block clicks while fading */
 }
 
 .course-enter-active {
-  z-index: 5; /* Ensure new item is on top */
+  z-index: 5;
+  /* Ensure new item is on top */
 }
 
 .course-wrapper {
   /* transition handled by transition-group classes above */
   z-index: 10;
-  padding: 0; 
+  padding: 0;
   width: 100%;
   height: 100%;
-  overflow: hidden; /* Ensure card stays in cell */
+  overflow: hidden;
+  /* Ensure card stays in cell */
 }
 
 /* Scrollbar styling */
@@ -384,13 +386,16 @@ function isToday(dayName: string): boolean {
   width: 4px;
   height: 4px;
 }
+
 .schedule-container::-webkit-scrollbar-track {
   background: transparent;
 }
+
 .schedule-container::-webkit-scrollbar-thumb {
   background: rgba(100, 100, 100, 0.2);
   border-radius: 4px;
 }
+
 .schedule-container::-webkit-scrollbar-thumb:hover {
   background: rgba(100, 100, 100, 0.3);
 }

@@ -2,6 +2,7 @@
 import { ref, computed, onMounted, watch } from "vue";
 import { invoke } from "@tauri-apps/api/core";
 import { getCurrentWindow } from "@tauri-apps/api/window";
+import { getVersion } from "@tauri-apps/api/app";
 import { open as openFileDialog, ask } from '@tauri-apps/plugin-dialog';
 import { openUrl } from '@tauri-apps/plugin-opener';
 import { readTextFile } from '@tauri-apps/plugin-fs';
@@ -86,7 +87,7 @@ onMounted(() => {
   if (savedTheme) {
     currentTheme.value = savedTheme;
   }
-  
+
   const savedCourses = localStorage.getItem(TASKS_KEY);
   if (savedCourses) {
     try {
@@ -100,7 +101,7 @@ onMounted(() => {
   if (savedDate) {
     startSemDate.value = savedDate;
   }
-  
+
   // Calculate current week on load
   const now = new Date();
   const start = new Date(startSemDate.value);
@@ -192,7 +193,7 @@ const rootStyle = computed(() => {
         '--accent-gradient': 'linear-gradient(to right, #ff7043, #ffab91)',
       };
     case 'minimal':
-       return {
+      return {
         '--primary-color': '#000',
         '--bg-gradient': '#ffffff',
         '--text-main': '#000',
@@ -224,13 +225,13 @@ async function handleImport() {
         extensions: ['txt']
       }]
     });
-    
+
     if (path) {
-       const filePath = typeof path === 'string' ? path : (path as any).path; 
-       const content = await readTextFile(filePath);
-       courses.value = await invoke("import_schedule", { content });
-       // Close modal on success
-       showSettings.value = false;
+      const filePath = typeof path === 'string' ? path : (path as any).path;
+      const content = await readTextFile(filePath);
+      courses.value = await invoke("import_schedule", { content });
+      // Close modal on success
+      showSettings.value = false;
     }
   } catch (err) {
     console.error("Failed to import schedule:", err);
@@ -245,34 +246,55 @@ async function openWebTool() {
 }
 
 async function checkForUpdates(silent = false) {
-  const RELEASES_URL = 'https://github.com/2bitbit/oh-my-class-schedule/releases/latest';
-  
+  // const RELEASES_URL = 'https://github.com/2bitbit/oh-my-class-schedule/releases/latest';
+
   try {
     isCheckingUpdate.value = true;
-    
+
     // 移动端：直接提供下载链接
+    // 移动端：手动检查 GitHub Release
     if (isMobile.value) {
-      const yes = await ask(
-        '安卓版需要手动下载更新。\n\n点击「前往下载」将打开 GitHub 发布页面。', 
-        { 
+      const currentVersion = await getVersion();
+      // Fetch latest release from GitHub API
+      const response = await fetch('https://api.github.com/repos/2bitbit/oh-my-class-schedule/releases/latest');
+      if (!response.ok) {
+        throw new Error(`GitHub API Error: ${response.statusText}`);
+      }
+      const data = await response.json();
+      const latestVersion = data.tag_name.replace(/^v/, '');
+
+      // Simple semver compare (assuming x.y.z format)
+      if (latestVersion !== currentVersion) {
+        // Found new version
+        const yes = await ask(
+          `发现新版本 v${latestVersion} (当前 v${currentVersion})\n\n更新内容:\n${data.body || '无描述'}\n\n安卓版需要手动下载更新。`,
+          {
+            title: '发现新版本',
+            kind: 'info',
+            okLabel: '前往下载',
+            cancelLabel: '取消'
+          }
+        );
+        if (yes) {
+          await openUrl(data.html_url); // Go to release page
+        }
+      } else if (!silent) {
+        // Latest
+        await ask('当前已是最新版本', {
           title: '检查更新',
           kind: 'info',
-          okLabel: '前往下载',
-          cancelLabel: '取消'
-        }
-      );
-      if (yes) {
-        await openUrl(RELEASES_URL);
+          okLabel: '确定'
+        });
       }
       return;
     }
-    
+
     // 桌面端：自动检测并下载更新
     const update = await check();
     if (update && update.available) {
       const yes = await ask(
-        `发现新版本 v${update.version}\n\n更新内容:\n${update.body}`, 
-        { 
+        `发现新版本 v${update.version}\n\n更新内容:\n${update.body}`,
+        {
           title: 'Oh My Schedule 更新',
           kind: 'info',
           okLabel: '立即更新',
@@ -284,26 +306,26 @@ async function checkForUpdates(silent = false) {
         await relaunch();
       }
     } else if (!silent) {
-       await ask('当前已是最新版本', { 
-         title: '检查更新', 
-         kind: 'info',
-         okLabel: '确定'
-       });
+      await ask('当前已是最新版本', {
+        title: '检查更新',
+        kind: 'info',
+        okLabel: '确定'
+      });
     }
   } catch (error) {
     console.error(error);
     if (!silent) {
-       // Catch specific error for missing release file (common on first install)
-       const errStr = String(error);
-       if (errStr.includes("Could not fetch a valid release JSON") || errStr.includes("404")) {
-         await ask('暂未找到发布信息 (可能是因为这是第一个版本，或者网络无法访问 GitHub)。', { 
-           title: '检查更新', 
-           kind: 'info',
-           okLabel: '确定' 
-         });
-       } else {
-         await ask(`检查更新失败: ${error}`, { title: '错误', kind: 'error' });
-       }
+      // Catch specific error for missing release file (common on first install)
+      const errStr = String(error);
+      if (errStr.includes("Could not fetch a valid release JSON") || errStr.includes("404")) {
+        await ask('未找到发布信息。', {
+          title: '检查更新',
+          kind: 'info',
+          okLabel: '确定'
+        });
+      } else {
+        await ask(`检查更新失败: ${error}`, { title: '错误', kind: 'error' });
+      }
     }
   } finally {
     isCheckingUpdate.value = false;
@@ -326,14 +348,22 @@ async function checkForUpdates(silent = false) {
       <div class="titlebar-drag-area" data-tauri-drag-region></div>
       <div class="titlebar-controls">
         <button class="titlebar-btn" @click="minimizeWindow" title="最小化">
-          <svg width="12" height="12" viewBox="0 0 12 12"><rect y="5" width="12" height="2" fill="currentColor"/></svg>
+          <svg width="12" height="12" viewBox="0 0 12 12">
+            <rect y="5" width="12" height="2" fill="currentColor" />
+          </svg>
         </button>
         <button class="titlebar-btn" @click="toggleMaximize" :title="isMaximized ? '还原' : '最大化'">
-          <svg v-if="!isMaximized" width="12" height="12" viewBox="0 0 12 12"><rect x="1" y="1" width="10" height="10" fill="none" stroke="currentColor" stroke-width="2"/></svg>
-          <svg v-else width="12" height="12" viewBox="0 0 12 12"><path d="M3,0 h7 v7 h-2 v2 h-7 v-7 h2 z M3,2 v5 h5 v-5 z" fill="currentColor"/></svg>
+          <svg v-if="!isMaximized" width="12" height="12" viewBox="0 0 12 12">
+            <rect x="1" y="1" width="10" height="10" fill="none" stroke="currentColor" stroke-width="2" />
+          </svg>
+          <svg v-else width="12" height="12" viewBox="0 0 12 12">
+            <path d="M3,0 h7 v7 h-2 v2 h-7 v-7 h2 z M3,2 v5 h5 v-5 z" fill="currentColor" />
+          </svg>
         </button>
         <button class="titlebar-btn close" @click="closeWindow" title="关闭">
-          <svg width="12" height="12" viewBox="0 0 12 12"><path d="M1,1 L11,11 M11,1 L1,11" stroke="currentColor" stroke-width="2"/></svg>
+          <svg width="12" height="12" viewBox="0 0 12 12">
+            <path d="M1,1 L11,11 M11,1 L1,11" stroke="currentColor" stroke-width="2" />
+          </svg>
         </button>
       </div>
     </div>
@@ -341,80 +371,77 @@ async function checkForUpdates(silent = false) {
     <header class="app-header">
       <div class="logo-area">
         <h1 class="desktop-title">Oh My Class Schedule</h1>
-        <h1 class="mobile-title">OMCS</h1>
+        <h1 class="mobile-title" style="font-size: 1.1em; padding: 0px;">OMCS</h1>
       </div>
-      
+
       <!-- Week Controls - 居中 -->
-      <div class="week-controls">
+      <div class="week-controls" style="font-size: 1em; padding: 0px; ">
         <button class="nav-btn" @click="selectedWeek > 1 ? selectedWeek-- : null">‹</button>
         <span class="week-display" @click="showSettings = true">第 {{ selectedWeek }} 周</span>
         <button class="nav-btn" @click="selectedWeek++">›</button>
       </div>
 
       <div class="actions">
-        <button class="settings-btn-glass" @click="showSettings = !showSettings" title="设置">
+        <button class="settings-btn-glass" @click="showSettings = !showSettings" title="设置"
+          style="font-size: 1em; padding: 0px;">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M19.14 12.94c.04-.31.06-.63.06-.94 0-.31-.02-.63-.06-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.04.31-.06.63-.06.94s.02.63.06.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/>
+            <path
+              d="M19.14 12.94c.04-.31.06-.63.06-.94 0-.31-.02-.63-.06-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.04.31-.06.63-.06.94s.02.63.06.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z" />
           </svg>
         </button>
       </div>
     </header>
-    
+
     <!-- Settings Modal -->
     <div v-if="showSettings" class="settings-modal-overlay" @click.self="showSettings = false">
       <div class="settings-modal">
         <h3>设置</h3>
-        
+
         <label>主题风格</label>
         <select v-model="currentTheme" class="theme-select">
           <option v-for="theme in themes" :key="theme.value" :value="theme.value">
             {{ theme.name }}
           </option>
         </select>
-        
-        
+
+
         <label>第一周的周一是哪一天？</label>
         <input type="date" v-model="startSemDate" class="date-input" />
 
 
         <label>更新设置</label>
         <div class="setting-row">
-            <span>自动检查更新</span>
-            <input type="checkbox" v-model="autoUpdateEnabled" class="toggle-checkbox" />
+          <span>自动检查更新</span>
+          <input type="checkbox" v-model="autoUpdateEnabled" class="toggle-checkbox" />
         </div>
         <button @click="checkForUpdates(false)" class="secondary-btn" :disabled="isCheckingUpdate">
-            {{ isCheckingUpdate ? '检查中...' : '检查更新' }}
+          {{ isCheckingUpdate ? '检查中...' : '检查更新' }}
         </button>
         <div class="settings-divider"></div>
-        
+
         <label>数据管理</label>
         <div class="button-group">
-            <button @click="openWebTool" class="secondary-btn">
-                🌍 打开网页转换工具
-            </button>
-            <button @click="handleImport" class="import-btn" :disabled="isImporting">
-                <span v-if="isImporting">导入中...</span>
-                <span v-else>📂 导入课表文件</span>
-            </button>
+          <button @click="openWebTool" class="secondary-btn">
+            🌍 打开网页转换工具
+          </button>
+          <button @click="handleImport" class="import-btn" :disabled="isImporting">
+            <span v-if="isImporting">导入中...</span>
+            <span v-else>📂 导入课表文件</span>
+          </button>
         </div>
-        
+
         <button class="close-btn" @click="showSettings = false">关闭</button>
       </div>
     </div>
-    
+
     <div class="content-area">
       <div v-if="courses.length === 0" class="empty-state">
         <h2>暂无课表数据</h2>
         <p>请导入 target.txt 课表文件以开始使用。</p>
         <button @click="handleImport" class="cta-btn">立即导入</button>
       </div>
-      <ScheduleGrid 
-        v-else 
-        :courses="courses" 
-        :theme="currentTheme" 
-        :current-week="selectedWeek" 
-        :start-date="startSemDate"
-      />
+      <ScheduleGrid v-else :courses="courses" :theme="currentTheme" :current-week="selectedWeek"
+        :start-date="startSemDate" />
     </div>
   </main>
 </template>
@@ -460,16 +487,22 @@ body {
   height: 100%;
   z-index: -1;
   background-image: linear-gradient(rgba(0, 255, 255, 0.1) 1px, transparent 1px),
-  linear-gradient(90deg, rgba(0, 255, 255, 0.1) 1px, transparent 1px);
+    linear-gradient(90deg, rgba(0, 255, 255, 0.1) 1px, transparent 1px);
   background-size: 40px 40px;
   background-size: 40px 40px;
   animation: gridMove 20s linear infinite;
-  will-change: transform; /* GPU hint */
+  will-change: transform;
+  /* GPU hint */
 }
 
 @keyframes gridMove {
-  from { transform: perspective(500px) rotateX(20deg) translateY(0); }
-  to { transform: perspective(500px) rotateX(20deg) translateY(40px); }
+  from {
+    transform: perspective(500px) rotateX(20deg) translateY(0);
+  }
+
+  to {
+    transform: perspective(500px) rotateX(20deg) translateY(40px);
+  }
 }
 
 
@@ -485,31 +518,38 @@ body {
 .week-controls {
   display: flex;
   align-items: center;
+  justify-content: space-between;
+  min-width: 50%;
+
   gap: 12px;
   background: var(--glass-bg);
   padding: 6px 16px;
   border-radius: 20px;
   border: 1px solid var(--glass-border);
   backdrop-filter: blur(8px);
-  box-shadow: 0 4px 6px rgba(0,0,0,0.05); /* Enhance depth */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  /* Enhance depth */
 }
 
 .nav-btn {
   background: none;
   border: none;
   color: var(--text-main);
-  font-size: 1.4rem; /* Larger touch target */
+  font-size: 1.4rem;
+  /* Larger touch target */
   cursor: pointer;
   padding: 0 8px;
   line-height: 1;
   opacity: 0.8;
   transition: all 0.2s;
 }
+
 .nav-btn:hover {
   color: var(--primary-color);
   opacity: 1;
   transform: scale(1.1);
 }
+
 .week-display {
   font-weight: 700;
   font-size: 1.1em;
@@ -517,8 +557,9 @@ body {
   user-select: none;
   color: var(--text-main);
   /* Text shadow for better contrast on complex backgrounds */
-  text-shadow: 0 1px 2px rgba(0,0,0,0.1); 
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
+
 .week-display:hover {
   color: var(--primary-color);
 }
@@ -531,6 +572,7 @@ body {
   cursor: pointer;
   margin-right: 12px;
 }
+
 .icon-btn:hover {
   transform: scale(1.1);
 }
@@ -555,7 +597,7 @@ body {
   background-color: white;
   padding: 1.5rem;
   border-radius: 16px;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
   width: 320px;
   max-width: calc(100vw - 32px);
   max-height: 85vh;
@@ -564,27 +606,37 @@ body {
   display: flex;
   flex-direction: column;
   gap: 0.8rem;
+  height: 100%;
 }
 
 /* Custom Scrollbar for Settings Modal */
 .settings-modal::-webkit-scrollbar {
-  width: 5px; /* Thinner */
+  width: 5px;
+  /* Thinner */
 }
+
 .settings-modal::-webkit-scrollbar-track {
   background: transparent;
-  margin: 10px 0; /* Float effect */
+  margin: 10px 0;
+  /* Float effect */
 }
+
 .settings-modal::-webkit-scrollbar-thumb {
-  background: rgba(0, 0, 0, 0.15); /* Lighter default */
-  border-radius: 10px; /* Fully rounded */
+  background: rgba(0, 0, 0, 0.15);
+  /* Lighter default */
+  border-radius: 10px;
+  /* Fully rounded */
 }
+
 .settings-modal::-webkit-scrollbar-thumb:hover {
   background: rgba(0, 0, 0, 0.3);
 }
+
 @media (prefers-color-scheme: dark) {
   .settings-modal::-webkit-scrollbar-thumb {
     background: rgba(255, 255, 255, 0.15);
   }
+
   .settings-modal::-webkit-scrollbar-thumb:hover {
     background: rgba(255, 255, 255, 0.3);
   }
@@ -601,7 +653,8 @@ body {
   margin-bottom: -0.5rem;
 }
 
-.date-input, .theme-select {
+.date-input,
+.theme-select {
   padding: 0.6rem;
   border-radius: 6px;
   border: 1px solid #ccc;
@@ -630,20 +683,25 @@ body {
     background-color: #2c2c2c;
     color: white;
   }
-  .date-input, .theme-select {
+
+  .date-input,
+  .theme-select {
     background: #333;
     color: white;
     border-color: #555;
   }
+
   .hint {
     color: #aaa;
   }
 }
 
 .settings-divider {
-  height: 1px;
-  background: var(--glass-border);
-  margin: 1rem 0;
+  height: 0.02rem;
+  background-color: var(--glass-border);
+  margin: 0.8rem 0;
+  flex-shrink: 0;
+  /* 防止在 flex 容器中被压缩 */
 }
 
 .button-group {
@@ -706,6 +764,8 @@ body {
 .app-container {
   height: 100vh;
   display: flex;
+  /* margin-bottom: 100px; */
+  padding-bottom: 100px;
   flex-direction: column;
   position: relative;
   z-index: 1;
@@ -729,7 +789,8 @@ body {
   filter: blur(80px);
   opacity: 0.6;
   animation: float 20s infinite ease-in-out;
-  will-change: transform; /* GPU hint */
+  will-change: transform;
+  /* GPU hint */
 }
 
 .globe-1 {
@@ -744,7 +805,8 @@ body {
 .globe-2 {
   width: 500px;
   height: 500px;
-  background: #fdf2f8; /* pinkish */
+  background: #fdf2f8;
+  /* pinkish */
   bottom: -150px;
   right: -100px;
   background: #f9a8d4;
@@ -754,7 +816,8 @@ body {
 .globe-3 {
   width: 300px;
   height: 300px;
-  background: #67e8f9; /* cyan */
+  background: #67e8f9;
+  /* cyan */
   top: 40%;
   left: 30%;
   opacity: 0.4;
@@ -762,13 +825,20 @@ body {
 }
 
 @keyframes float {
-  0%, 100% { transform: translate(0, 0); }
-  50% { transform: translate(30px, -30px); }
+
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+
+  50% {
+    transform: translate(30px, -30px);
+  }
 }
 
 /* Header */
 .app-header {
-  padding: 0.8rem 1.5rem;
+  margin-top: env(safe-area-inset-top);
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -776,7 +846,6 @@ body {
   -webkit-backdrop-filter: blur(12px);
   background: rgba(255, 255, 255, 0.15);
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  flex-shrink: 0;
 }
 
 .logo-area {
@@ -799,7 +868,8 @@ body {
   -webkit-text-fill-color: transparent;
 }
 
-.import-btn, .cta-btn {
+.import-btn,
+.cta-btn {
   background: #6366f1;
   color: white;
   border: none;
@@ -811,7 +881,8 @@ body {
   box-shadow: 0 4px 6px -1px rgba(99, 102, 241, 0.4);
 }
 
-.import-btn:hover, .cta-btn:hover {
+.import-btn:hover,
+.cta-btn:hover {
   background: #4f46e5;
   transform: translateY(-1px);
   box-shadow: 0 6px 8px -1px rgba(99, 102, 241, 0.5);
@@ -937,6 +1008,7 @@ body {
 .desktop-title {
   display: block;
 }
+
 .mobile-title {
   display: none;
 }
@@ -945,36 +1017,37 @@ body {
   .desktop-title {
     display: none;
   }
+
   .mobile-title {
     display: block;
   }
-  
+
   .app-header {
-    padding: 0.8rem 1rem;
+    padding: 8px 1rem;
   }
-  
+
   .logo-area h1 {
     font-size: 1.2rem;
   }
-  
+
   .week-controls {
     padding: 4px 12px;
     gap: 8px;
   }
-  
+
   .nav-btn {
-    font-size: 1.2rem;
+    font-size: 1.2em;
     padding: 0 6px;
     min-width: 32px;
     min-height: 32px;
   }
-  
+
   .icon-btn {
     min-width: 44px;
     min-height: 44px;
     font-size: 1.4rem;
   }
-  
+
   /* .custom-titlebar visibility is controlled by v-if="!isMobile" in template now. 
      Removing CSS display:none allows it to show on small desktop windows. */
 }
@@ -993,16 +1066,22 @@ body {
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes slideUp {
-  from { 
+  from {
     opacity: 0;
     transform: translateY(20px) scale(0.95);
   }
-  to { 
+
+  to {
     opacity: 1;
     transform: translateY(0) scale(1);
   }
@@ -1044,13 +1123,10 @@ body {
 /* ========================================
    透明背景支持 (配合原生窗口效果)
 ======================================== */
-html, body, #app {
+html,
+body,
+#app {
   background: transparent !important;
-}
-
-.app-container {
-  background: var(--bg-gradient);
-  border-radius: 0;
 }
 
 .app-container {
@@ -1076,5 +1152,4 @@ html, body, #app {
 
 /* 减少动画 (用户偏好) */
 /* 减少动画 (用户偏好) - Removed to enforce custom animations */
-
 </style>

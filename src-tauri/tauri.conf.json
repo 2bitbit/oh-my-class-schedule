@@ -1,11 +1,11 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
   "productName": "oh-my-class-schedule",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "identifier": "com.xie-bro.oh-my-class-schedule",
   "build": {
     "beforeDevCommand": "npm run dev",
-    "devUrl": "http://localhost:1420",
+    "devUrl": "http://192.168.211.86:1420",
     "beforeBuildCommand": "npm run build",
     "frontendDist": "../dist"
   },

@@ -14,7 +14,7 @@ const colorStyle = computed(() => {
   }
   const hues = [210, 150, 270, 45, 340, 250, 180, 190]; // Blue, Green, Purple, Amber, Rose, Indigo, Teal, Cyan
   const hue = hues[Math.abs(hash) % hues.length];
-  
+
   if (props.theme === 'neon') {
     return {
       '--card-hue': hue,
@@ -40,7 +40,7 @@ const colorStyle = computed(() => {
       '--card-shadow': 'none'
     };
   } else if (props.theme === 'forest') {
-      return {
+    return {
       '--card-hue': hue,
       '--card-bg': `hsla(${hue}, 40%, 90%, 0.85)`,
       '--card-text': `hsl(${hue}, 60%, 20%)`,
@@ -48,7 +48,7 @@ const colorStyle = computed(() => {
       '--card-shadow': '0 2px 4px rgba(0, 50, 0, 0.05)'
     };
   } else if (props.theme === 'sunset') {
-      return {
+    return {
       '--card-hue': hue,
       '--card-bg': `hsla(${hue}, 70%, 95%, 0.8)`,
       '--card-text': `hsl(${hue}, 90%, 25%)`,
@@ -56,7 +56,7 @@ const colorStyle = computed(() => {
       '--card-shadow': '0 2px 6px rgba(255, 100, 0, 0.1)'
     };
   } else if (props.theme === 'minimal') {
-      return {
+    return {
       '--card-hue': 0, // Monochrome
       '--card-bg': '#f5f5f5',
       '--card-text': '#000',
@@ -64,7 +64,7 @@ const colorStyle = computed(() => {
       '--card-shadow': 'none'
     };
   }
-  
+
   // Default / Glass
   return {
     '--card-hue': hue,
@@ -77,10 +77,7 @@ const colorStyle = computed(() => {
 </script>
 
 <template>
-  <div 
-    class="course-card"
-    :style="colorStyle"
-  >
+  <div class="course-card" :style="colorStyle">
     <div class="course-name">{{ course.name }}</div>
     <div class="course-info">
       <div v-if="course.location" class="info-row">
@@ -95,7 +92,6 @@ const colorStyle = computed(() => {
 </template>
 
 <style scoped>
-
 .course-card {
   height: 100%;
   display: flex;
@@ -107,7 +103,7 @@ const colorStyle = computed(() => {
   background-color: var(--card-bg);
   color: var(--card-text);
   border: 1px solid var(--card-border);
-  box-shadow: var(--card-shadow), inset 0 1px 0 rgba(255,255,255,0.1);
+  box-shadow: var(--card-shadow), inset 0 1px 0 rgba(255, 255, 255, 0.1);
   transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   cursor: pointer;
   backdrop-filter: blur(8px);
@@ -125,7 +121,7 @@ const colorStyle = computed(() => {
   left: -100%;
   width: 100%;
   height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15), transparent);
   transition: left 0.5s ease;
   pointer-events: none;
 }
@@ -133,7 +129,7 @@ const colorStyle = computed(() => {
 .course-card:hover {
   transform: translateY(-2px) scale(1.02);
   z-index: 15;
-  box-shadow: var(--card-shadow), 0 8px 16px rgba(0,0,0,0.15);
+  box-shadow: var(--card-shadow), 0 8px 16px rgba(0, 0, 0, 0.15);
 }
 
 .course-card:hover::before {
@@ -142,10 +138,10 @@ const colorStyle = computed(() => {
 
 .course-name {
   font-weight: 700;
-  font-size: 0.68em;
+  font-size: clamp(10px, 1.2vw, 16px);
+  flex: none;
   line-height: 1.15;
   margin-bottom: 0;
-  display: -webkit-box;
   -webkit-line-clamp: 2;
   line-clamp: 2;
   -webkit-box-orient: vertical;
@@ -154,29 +150,35 @@ const colorStyle = computed(() => {
 }
 
 .course-info {
-  font-size: 0.58em;
+  font-size: 70%;
   opacity: 0.9;
+  width: 120%;
+  transform: scale(0.85);
+  transform-origin: top left;
+
 }
 
 .info-row {
   display: flex;
-  align-items: center;
-  gap: 2px;
-  margin-top: 1px;
-  white-space: nowrap;
   overflow: hidden;
-  text-overflow: ellipsis;
+  font-size: clamp(8px, 1.5vw, 10px);
+}
+
+.course-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
 }
 
 .info-weeks {
-  margin-top: 1px;
-  font-size: 0.8em; /* Relative to parent 0.6em */
+  font-size: 0.8em;
   opacity: 0.85;
   text-align: right;
+  margin-top: auto;
 }
 
 .icon {
-  font-size: 1em; 
+  font-size: 1em;
   opacity: 0.8;
 }
 </style>

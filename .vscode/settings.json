@@ -1,0 +1,23 @@
+{
+    "files.exclude": {
+        "node_modules": true,
+        "tsconfig.json": true,
+        "tsconfig.node.json": true,
+        "src-tauri/icons": true,
+        "src-tauri/Cargo.lock": true,
+        "src-tauri/gen/schemas": true,
+        "src-tauri/target": true,
+        "package-lock.json": true,
+        "dist": true,
+        "src-tauri/gen/android/*.*/": true,
+        "src-tauri/gen/android/{build*,gradle*}": true,
+        "src-tauri/gen/android/app/{*.*,src}": true,
+        "src-tauri/gen/android/app/build/{generated,intermediates,tmp,src,snapshot,kotlin*,}": true,
+        "src-tauri/gen/android/app/build/outputs/{logs,mapping,sdk-*}": true,
+        "src-tauri/gen/android/app/build/outputs/apk/x86_64": true,
+        "src-tauri/gen/android/app/build/outputs/apk/universal/release/{baselineProfiles,output-metadata.json}": true,
+        "src-tauri/build.rs": true,
+        "index.html": true,
+        "src/vite-env.d.ts": true
+    },
+}
