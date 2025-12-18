@@ -1,4 +1,5 @@
-# <div align="center"><img src="./docs/logo.svg" height="50" align="top">  </div>
+# 仍处于测试中，最迟2025.12.25前发布，敬请期待
+<div align="center"><img src="./docs/logo.svg" height="50" align="top">  </div>
 <div align="center">
   ✨🌈💫 **跨 平 台 大 学 课 表** 💫🌈✨<br>
   <sub>🪟 Windows · 🍎 macOS · 🐧 Linux · 🤖 Android</sub>
