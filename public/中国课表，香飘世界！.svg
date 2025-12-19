@@ -1,0 +1,98 @@
+<svg width="1000" height="120" viewBox="0 0 1000 120" xmlns="http://www.w3.org/2000/svg">
+    <foreignObject width="100%" height="100%">
+        <div xmlns="http://www.w3.org/1999/xhtml" style="height:100%;display:flex;align-items:center;justify-content:center;">
+            <style>
+                /* 1. 浓郁金黄渐变 (保持不变) */
+                .rich-gold-gradient {
+                    background: linear-gradient(
+                        135deg, 
+                        #8a6218 0%,    /* 深古铜金 */
+                        #FFD700 20%,   /* 纯亮金 */
+                        #d4af37 40%,   /* 标准金属金 */
+                        #fff44f 50%,   /* 极亮高光黄 */
+                        #d4af37 60%,   /* 标准金属金 */
+                        #FFD700 80%,   /* 纯亮金 */
+                        #8a6218 100%   /* 回到深古铜金 */
+                    );
+                    background-size: 300% 300%;
+                }
+
+                /* 2. 动画速度加快 (Fast!) */
+                /* 快速背景移动 */
+                @keyframes fast-gold-shift {
+                    0%   { background-position: 0% 50%; }
+                    25%  { background-position: 100% 0%; }
+                    50%  { background-position: 20% 100%; }
+                    75%  { background-position: 80% 0%; }
+                    100% { background-position: 0% 50%; }
+                }
+
+                /* 快速亮度闪烁 */
+                @keyframes fast-brightness-flash {
+                    0%, 100% { filter: brightness(1) contrast(1); }
+                    50% { filter: brightness(1.5) contrast(1.3); }
+                }
+                
+                /* 快速辉光脉冲 */
+                @keyframes fast-glow-pulse {
+                    0%, 100% { text-shadow: 0 0 5px rgba(218, 165, 32, 0.3); }
+                    50% { text-shadow: 0 0 20px rgba(255, 215, 0, 0.9), 0 0 30px rgba(255, 255, 0, 0.6); }
+                }
+
+                /* 星星快速心跳 */
+                @keyframes star-beat {
+                    0%, 100% { transform: scale(1); }
+                    50% { transform: scale(1.5); } 
+                }
+                
+                /* 通用文字容器样式 */
+                .text-container {
+                    font-family: "Arial Black", "Heiti SC", "Microsoft YaHei", sans-serif;
+                    font-weight: 900;
+                    /* 3. 缩小字号以显示全 */
+                    font-size: 32px; 
+                    text-align: center;
+                    white-space: nowrap;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                }
+
+                /* 应用于金光文字部分的样式 */
+                .gold-text-part {
+                    /* 应用渐变背景 */
+                    background: inherit; 
+                    background-size: inherit;
+                    -webkit-background-clip: text;
+                    background-clip: text;
+                    color: transparent;
+                    
+                    /* 应用快速组合动画：时间加快到 2s, 0.8s, 1.2s */
+                    animation: 
+                        fast-gold-shift 2s linear infinite,
+                        fast-brightness-flash 0.8s ease-in-out infinite alternate,
+                        fast-glow-pulse 1.2s ease-in-out infinite alternate;
+                }
+
+                /* 独立的星星样式 */
+                .pulsing-star-box {
+                    display: inline-block;
+                    /* 确保星星有自己的颜色，不透明 */
+                    color: #FFD700; 
+                    margin: 0 5px; /* 给星星一点左右间距 */
+                    transform-origin: center center;
+                    /* 独立的快速心跳动画 0.8s */
+                    animation: star-beat 0.8s ease-in-out infinite;
+                    /* 稍微加点独立的辉光 */
+                    filter: drop-shadow(0 0 5px rgba(255,215,0,0.7));
+                }
+            </style>
+            
+            <div class="text-container rich-gold-gradient">
+                <span class="gold-text-part">中国课表，香飘世界！为我的项目点点 star</span>
+                <span class="pulsing-star-box">🌟</span>
+                <span class="gold-text-part">，让世界看见中国造！</span>
+            </div>
+        </div>
+    </foreignObject>
+</svg>

@@ -1,4 +1,5 @@
-# <div align="center"><img src="./docs/logo.svg" height="50" align="top">  </div>
+
+# <div align="center"><img src="./public/logo.svg" height="60" align="top">  </div>
 <div align="center">
   ✨🌈💫 **跨 平 台 大 学 课 表** 💫🌈✨<br>
   <sub>🪟 Windows · 🍎 macOS · 🐧 Linux · 🤖 Android</sub>
@@ -16,7 +17,7 @@
 ## 🤓 送给广大学牲 -- 这是什么
 这是一个追求 **极致用户体验** 与 **无感智能适配** 的简洁的跨平台课程表应用。你每天都要查看无数次的工具，值得被我们精心雕琢。
 
-***2026***，<img src="./docs/logo.svg" height="30" align="top"> 震撼来袭！！！：
+***2026***，<img src="./public/logo.svg" height="22" align="top"> 震撼来袭！！！：
 - 专为 ***翘课*** 生定制！厌倦了校方课表（如HNU微生活）突然把你精心自定义的课程的显示优先级排在原课程之后？<br>大胆说NO，让ta滚犊子！
 
 - 专为 ***简洁*** 党定制！厌倦了校方课表（如HNU微生活）没法删掉水灵灵的课，眼不见心不烦？<br>大胆说NO，让ta滚犊子！
@@ -48,7 +49,7 @@
 - **自动化**: 无论是发布版本还是更新网页工具，我们都构建了全自动化的工作流，方便每一位贡献者。
 
 ## 📖 如何使用
-### 第 1 步：安装配置
+### 第 1 步：安装 <img src="./public/logo.svg" height="24" align="top">
 - Windows、Linux、Android、macOS请点击 [这里](https://github.com/2bitbit/oh-my-class-schedule/releases/latest) 下载后安装。（macOS的安装方法请自行必应搜索或者问大模型）
 - 不支持 IOS <!-- WHAT A SHAME -->
 
@@ -57,7 +58,8 @@
 
 对于部分学校，我们提供了 [***格式化工具***](https://2bitbit.github.io/oh-my-class-schedule/) ：直接在教务系统导出课表，传入该工具即可复制出满足参考格式的文件，直接创建文件向其粘贴内容，使用该文件作为配置即可。
 
->[!tip] tip: 你也可以对课表本身进行编辑后，再上传至格式化工具，只是记得你编辑的内容要保持和原始课表的格式一致
+>[!tip]
+>你也可以对课表本身进行编辑后，再上传至格式化工具，只是记得你编辑的内容要保持和原始课表的格式一致
 
 ## 🤝 如何贡献 (Contributing)
 我们非常欢迎您为自己的母校添加适配支持！得益于我们的“文件即插件”适配器架构，为您的母校添加课表适配，这变得异常简单，只需根据模板编写一个文件即可：
@@ -70,7 +72,8 @@
     ```
 4.  **提交 PR**: 没错，只需编写这一个文件，你的学校就会出现在我们的支持列表中，造福你的所有同学！（你可以自定义你们学校的适配器名字哦，比如："清华大学（谢复盘编写）"、"五道口技校"、"不如隔壁的中南"，先到先得，败者食尘！）（从此享受崇敬的目光，也许还能迎来一段迷人的恋/基情！）
 
->[!tip] tip: 或者更简单地，直接交给 AI 去做。
+>[!tip]
+>或者更简单地，直接交给 AI 去做。
 ---
 
 ## 🤑 赞赏 💰💴🧧💸👛🪙
@@ -79,11 +82,10 @@
 <!-- 怎么也飞不出，花花的世界，原来我是一只，🦋大的学牲 -->
 
 <div align="center">
-<span  style="color: #FFD700; font-weight: bold; text-shadow: 0 0 2px #FFA500;">中国课表，香飘世界！为我的项目点点 star 🌟，让世界看见中国造！</span>
+<img src="public/中国课表，香飘世界！.svg">
 </div>
 <!-- 不要怼我什么逻辑诡辩了，求求了给点叭，点点星星叭，求求了求求了 -->
-<br><br><br><br><br><br>
 <div align="center" style="font-size: 12px;">
-  希望 <img src="./docs/logo.svg" height="20" align="top"> 能成为您大学生活中洋洋得意的小确幸。
+  希望 <img src="./public/logo.svg" height="20" align="top"> 能成为您大学生活中洋洋得意的小确幸。
 </div>
 
