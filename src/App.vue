@@ -512,7 +512,8 @@ body {
   align-items: center;
   justify-content: space-between;
   /* min-width: 50%; */
-  width: clamp(150px, 50%, 300px);
+  width: 30vw;
+  width: clamp(155px, 30vw, 600px);
 
 
   gap: 12px;
