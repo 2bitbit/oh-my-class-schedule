@@ -1,4 +1,3 @@
-
 # <div align="center"><img src="./docs/README/logo.svg" height="60" align="top">  </div>
 <div align="center">
   ✨🌈💫 **跨 平 台 大 学 课 表** 💫🌈✨<br>
@@ -26,10 +25,19 @@
 
 - 专为 ***颜值*** 党定制！厌倦了校方课表（如HNU微生活）样式古板单一不走心？<br>大胆说NO，让ta滚犊子！  <!-- 没抄 apple -->
 
-<div align="center">
-<video src="./docs/README/动画_1.webm" controls width="45%"></video>
-<video src="./docs/README/动画_2.webm" controls width="45%"></video>
-</div>
+
+<table align="center">
+  <tr>
+    <td width="50%" align="center">
+      <b>演示1</b><br>
+      <video src="https://github.com/user-attachments/assets/8f37bd42-f3a0-4586-9ba4-e5ebb79668d6" width="100%" autoplay loop muted playsinline></video>
+    </td>
+    <td width="50%" align="center">
+      <b>演示2</b><br>
+      <video src="https://github.com/user-attachments/assets/469ebe92-db29-42cf-9de5-aafdacb90606" width="100%" autoplay loop muted playsinline></video>
+    </td>
+  </tr>
+</table>
 
 ## ✨ 眼前一亮的细节
 
