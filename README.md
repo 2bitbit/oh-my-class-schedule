@@ -1,5 +1,5 @@
 
-# <div align="center"><img src="./public/logo.svg" height="60" align="top">  </div>
+# <div align="center"><img src="./docs/README/logo.svg" height="60" align="top">  </div>
 <div align="center">
   ✨🌈💫 **跨 平 台 大 学 课 表** 💫🌈✨<br>
   <sub>🪟 Windows · 🍎 macOS · 🐧 Linux · 🤖 Android</sub>
@@ -17,7 +17,7 @@
 ## 🤓 送给广大学牲 -- 这是什么
 这是一个追求 **极致用户体验** 与 **无感智能适配** 的简洁的跨平台课程表应用。你每天都要查看无数次的工具，值得被我们精心雕琢。
 
-***2026***，<img src="./public/logo.svg" height="22" align="top"> 震撼来袭！！！：
+***2026***，<img src="./docs/README/logo.svg" height="22" align="top"> 震撼来袭！！！：
 - 专为 ***翘课*** 生定制！厌倦了校方课表（如HNU微生活）突然把你精心自定义的课程的显示优先级排在原课程之后？<br>大胆说NO，让ta滚犊子！
 
 - 专为 ***简洁*** 党定制！厌倦了校方课表（如HNU微生活）没法删掉水灵灵的课，眼不见心不烦？<br>大胆说NO，让ta滚犊子！
@@ -27,10 +27,9 @@
 - 专为 ***颜值*** 党定制！厌倦了校方课表（如HNU微生活）样式古板单一不走心？<br>大胆说NO，让ta滚犊子！  <!-- 没抄 apple -->
 
 <div align="center">
-  <img src="./public/动画_1.gif" width=45%>
-  <img src="./public/动画_2.gif" width=45%>
+<video src="./docs/README/动画_1.mp4" controls width="45%"></video>
+<video src="./docs/README/动画_2.mp4" controls width="45%"></video>
 </div>
-（此处有两个 demo GIF，体积较大，可能需要加载一些时间。）
 
 ## ✨ 眼前一亮的细节
 
@@ -49,7 +48,7 @@
 - **自动化**: 无论是发布版本还是更新网页工具，我们都构建了全自动化的工作流，方便每一位贡献者。
 
 ## 📖 如何使用
-### 第 1 步：安装 <img src="./public/logo.svg" height="24" align="top">
+### 第 1 步：安装 <img src="./docs/README/logo.svg" height="24" align="top">
 - Windows、Linux、Android、macOS请点击 [这里](https://github.com/2bitbit/oh-my-class-schedule/releases/latest) 下载后安装。（macOS的安装方法请自行必应搜索或者问大模型）
 - 不支持 IOS <!-- WHAT A SHAME -->
 
@@ -77,15 +76,15 @@
 ---
 
 ## 🤑 赞赏 💰💴🧧💸👛🪙
-<img src="public/求求了给点叭.png" width=46%><img src="public/求求了求求了.png" width=44%>
+<img src="./docs/README/求求了给点叭.png" width=46%><img src="public/求求了求求了.png" width=44%>
 <!-- 我才不愿意让你看到我这副低声下气的样子呢，哼唧唧。 -->
 <!-- 怎么也飞不出，花花的世界，原来我是一只，🦋大的学牲 -->
 
 <div align="center">
-<img src="public/中国课表，香飘世界！.svg">
+<img src="./docs/README//中国课表，香飘世界！.svg">
 </div>
 <!-- 不要怼我什么逻辑诡辩了，求求了给点叭，点点星星叭，求求了求求了 -->
 <div align="center" style="font-size: 12px;">
-  希望 <img src="./public/logo.svg" height="20" align="top"> 能成为您大学生活中洋洋得意的小确幸。
+  希望 <img src="./docs/README//logo.svg" height="20" align="top"> 能成为您大学生活中洋洋得意的小确幸。
 </div>
 

@@ -1,5 +1,14 @@
 {
     "files.exclude": {
+        "**/.git": true,
+        "**/.svn": true,
+        "**/.hg": true,
+        "**/.DS_Store": true,
+        "**/Thumbs.db": true,
+        ".clang-format": true,
+        ".vs": true,
+        "**/.gitattributes": true,
+        "**/.idea": true,
         "node_modules": true,
         "tsconfig.json": true,
         "tsconfig.node.json": true,
@@ -8,7 +17,6 @@
         "src-tauri/gen/schemas": true,
         "src-tauri/target": true,
         "package-lock.json": true,
-        "dist": true,
         "src-tauri/gen/android/*.*/": true,
         "src-tauri/gen/android/{build*,gradle*}": true,
         "src-tauri/gen/android/app/{*.*,src}": true,
@@ -20,4 +28,5 @@
         "index.html": true,
         "src/vite-env.d.ts": true
     },
+    "hide-files.files": [],
 }
