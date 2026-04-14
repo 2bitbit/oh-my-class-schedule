@@ -47,7 +47,7 @@ def update_version(new_version):
 def git_push(new_version):
     print("=======================================================")
     print(
-        f"\033[92mPlease wait for cargo.lock to update, then commit,sync changes, and run git tag v{new_version} && git push origin v{new_version}\033[0m"
+        f"\033[92mPlease wait for cargo.lock to update, then commit,sync changes, and run git tag v{new_version} && git push origin v{new_version}\033 and go to the GitHub page and change the draft release to a formal release.[0m"
     )
 
 
