@@ -27,8 +27,8 @@
 - 专为 ***颜值*** 党定制！厌倦了校方课表（如HNU微生活）样式古板单一不走心？<br>大胆说NO，让ta滚犊子！  <!-- 没抄 apple -->
 
 <div align="center">
-<video src="./docs/README/动画_1.mp4" controls width="45%"></video>
-<video src="./docs/README/动画_2.mp4" controls width="45%"></video>
+<video src="./docs/README/动画_1.webm" controls width="45%"></video>
+<video src="./docs/README/动画_2.webm" controls width="45%"></video>
 </div>
 
 ## ✨ 眼前一亮的细节
@@ -76,7 +76,7 @@
 ---
 
 ## 🤑 赞赏 💰💴🧧💸👛🪙
-<img src="./docs/README/求求了给点叭.png" width=46%><img src="public/求求了求求了.png" width=44%>
+<img src="./docs/README/求求了给点叭.png" width=46%><img src="./docs/README/求求了求求了.png" width=44%>
 <!-- 我才不愿意让你看到我这副低声下气的样子呢，哼唧唧。 -->
 <!-- 怎么也飞不出，花花的世界，原来我是一只，🦋大的学牲 -->
 
