@@ -26,14 +26,50 @@
             const weekMap = ["星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六"];
 
             const cleanLocation = (raw) => {
-                let cleaned = raw;
-                for (let i = raw.length - 1; i >= 0; i--) {
-                    if (/[\u4e00-\u9fa5]/.test(raw[i])) {
-                        cleaned = raw.substring(i);
-                        break;
-                    }
+                if (!raw) return "Unknown";
+                let loc = raw.trim();
+
+                // 1. 体育场地等 【...】
+                const bracketMatch = loc.match(/【(.*?)】/);
+                if (bracketMatch) {
+                    let name = bracketMatch[1].trim();
+                    let simplified = name.replace(/(?:网球|羽毛球|篮球|足球|排球|乒乓球|田径|游泳)?(?:运动)?(?:场地|球场|场|馆)$/, '');
+                    return simplified || name;
                 }
-                return cleaned.replace(/[)）]$/, '');
+
+                // 2. 楼栋教室 (简称) 格式，如 "综合教学楼(综409)" -> "综409", "中楼(中410)" -> "中410"
+                const parenMatch = loc.match(/[\(（]([^()（）]+)[\)）]/);
+                if (parenMatch) {
+                    return parenMatch[1].trim();
+                }
+
+                // 3. 如果本身包含场地后缀且类似体育场地，如 "荫马塘网球场"
+                if (/网球|羽毛球|篮球|足球|排球|乒乓球|田径|运动场/.test(loc)) {
+                    let simplified = loc.replace(/(?:网球|羽毛球|篮球|足球|排球|乒乓球|田径|游泳)?(?:运动)?(?:场地|球场|场|馆)$/, '');
+                    if (simplified) return simplified;
+                }
+
+                // 4. 去除首尾可能的括号标点并返回
+                loc = loc.replace(/^[(\[（【]+|[)\]）】]+$/g, '').trim();
+                return loc || "Unknown";
+            };
+
+            const cleanTeacher = (raw) => {
+                if (!raw) return "Unknown";
+                // 移除高校常见职称与括号说明
+                return raw
+                    .replace(/[\(（][^()（）]*(?:教授|讲师|导师|研究员|助教)[^()（）]*[\)）]/g, '')
+                    .replace(/副?教授|讲师|助理教授|博士生导师|硕士生导师|研究员|副研究员|助教/g, '')
+                    .trim();
+            };
+
+            const sectionMap = {
+                '一': '01~02', '1': '01~02',
+                '二': '03~04', '2': '03~04',
+                '三': '05~06', '3': '05~06',
+                '四': '07~08', '4': '07~08',
+                '五': '09~10', '5': '09~10',
+                '六': '11~12', '6': '11~12',
             };
 
             for (let r = 0; r < rows.length; r++) {
@@ -46,57 +82,59 @@
                     if (output.length > 0) output.push("");
                     output.push(`第${numChar.repeat(10)}大节`);
 
+                    let timeStr = sectionMap[numChar] ? `${sectionMap[numChar]}小节` : "01~02小节";
+
                     for (let c = 1; c <= 7; c++) {
                         if (!row[c]) continue;
                         let lines = row[c].split('\n').map(l => l.trim()).filter(l => l && l !== 'null');
 
                         for (let i = 0; i < lines.length; i++) {
-                            let name = lines[i];
-                            let info = lines[i + 1];
-                            if (info && info.includes(';')) {
-                                let [teacher, weeks, loc] = info.split(';');
-                                let timeStr = "01~02小节";
-
-                                // Map Chinese Number to Section Ranges
-                                const sectionMap = {
-                                    '一': '01~02', '1': '01~02',
-                                    '二': '03~04', '2': '03~04',
-                                    '三': '05~06', '3': '05~06',
-                                    '四': '07~08', '4': '07~08',
-                                    '五': '09~10', '5': '09~10', // Evening or 9-11? Default to 09~10, user can edit
-                                    '六': '11~12', '6': '11~12',
-                                };
-
-                                if (sectionMap[numChar]) {
-                                    timeStr = `${sectionMap[numChar]}小节`;
-                                } else {
-                                    // Fallback: Try parse numbers from firstCell but be smarter
-                                    // Avoid grabbing minutes (40, 35). Only grab logical period numbers if they exist?
-                                    // Actually HNU XLS headers seem to be "第一大节\n08:00-09:40".
-                                    // We should probably just stick to the map.
+                            let line = lines[i];
+                            // 寻找包含教师和周数的信息行（包含中英文分号与周）
+                            if (/[;；]/.test(line) && line.includes('周')) {
+                                let name = (i > 0) ? lines[i - 1] : "未知课程";
+                                let extra = "";
+                                if (i + 1 < lines.length && (lines[i + 1].startsWith('[') || lines[i + 1].includes('【'))) {
+                                    extra = lines[i + 1];
+                                    i++;
                                 }
 
-                                // Special handling for 3-slot courses?
-                                // If firstCell implies 3 slots (e.g. ends later), hard to tell.
-                                // But usually "Big Section" = 2 slots.
-                                // Let's stick to the mapping.
+                                let cleanInfo = line.replace(/；/g, ';');
+                                let firstSemi = cleanInfo.indexOf(';');
+                                let teacherRaw = cleanInfo.slice(0, firstSemi).trim();
+                                let rest = cleanInfo.slice(firstSemi + 1).trim();
+
+                                let weeks = "";
+                                let locRaw = "";
+
+                                const weekMatch = rest.match(/^\[?([\d\s,\-~、]+周(?:\s*[\(（\[【]?[单双][\)）\]】]?)?)\]?/);
+                                if (weekMatch) {
+                                    weeks = weekMatch[1].replace(/\s+/g, '');
+                                    locRaw = rest.slice(weekMatch[0].length).replace(/^[;；\s]+/, '').trim();
+                                } else {
+                                    const fallbackMatch = rest.match(/\[?([\d\s,\-~、]+周(?:\s*[\(（\[【]?[单双][\)）\]】]?)?)\]?/);
+                                    if (fallbackMatch) {
+                                        weeks = fallbackMatch[1].replace(/\s+/g, '');
+                                        locRaw = rest.replace(fallbackMatch[0], '').replace(/^[;；\s]+/, '').trim();
+                                    } else {
+                                        weeks = rest;
+                                    }
+                                }
+
+                                if (!locRaw && extra) {
+                                    locRaw = extra;
+                                }
 
                                 const lastLine = output[output.length - 1];
-                                if (lastLine && !lastLine.includes("大节")) output.push("");
-
-                                // Helper: Clean Teacher (Remove Titles)
-                                const cleanTeacher = (raw) => {
-                                    if (!raw) return "Unknown";
-                                    // Remove standard academic titles
-                                    return raw.replace(/副?教授|讲师|助理教授|博士生导师|硕士生导师|研究员|副研究员/g, '');
-                                };
+                                if (lastLine && !lastLine.includes("大节")) {
+                                    output.push("");
+                                }
 
                                 output.push(name);
                                 output.push(timeStr);
                                 output.push(`[${weeks || ''}] ${weekMap[c - 1]}`);
-                                output.push(cleanLocation(loc || "Unknown"));
-                                output.push(cleanTeacher(teacher));
-                                i++;
+                                output.push(cleanLocation(locRaw));
+                                output.push(cleanTeacher(teacherRaw));
                             }
                         }
                     }
